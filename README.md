@@ -18,8 +18,8 @@ Afterwards, to build one of the available applications:
 
 ## Compatibility
 
-The examples were known to work with the following versions of RIOT-OS and NDN-RIOT module,
+The examples were known to work with the following versions of RIOT-OS (our own fork) and NDN-RIOT module,
 but may work with later (latest) versions:
 
-- **RIOT-OS**: 49d460c9237f6efacc9d3f31784080ed0941e692
-- **NDN-RIOT**: 6fc40252f815ea66ff0c379e8ad82c28313026f0
+- **RIOT-OS**: 49574ee4e427d966da23a06ed5aa97bfeba90a6e
+- **NDN-RIOT**: c5302b4a19885a0eb13effa0f5424e44909162e5

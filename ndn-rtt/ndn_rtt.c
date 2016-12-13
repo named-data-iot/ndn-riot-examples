@@ -99,7 +99,7 @@ static int on_data(ndn_block_t* interest, ndn_block_t* data)
 	}
     }
     else {
-	uint32_t end = xtimer_now();
+	uint32_t end = xtimer_now_usec();
 	printf("client (pid=%"PRIkernel_pid"): total time = %"PRIu32
 	       ", average = %"PRIu32"\n", handle->id, end - begin,
 	       (end-begin) / max_count);
@@ -170,7 +170,7 @@ static void run_client(int max_cnt)
 
     max_count = max_cnt;
     count = 0;
-    begin = xtimer_now();
+    begin = xtimer_now_usec();
 
     if (send_interest() == NDN_APP_ERROR) {
 	printf("client (pid=%" PRIkernel_pid "): cannot send interest"

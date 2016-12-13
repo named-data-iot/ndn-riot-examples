@@ -58,7 +58,7 @@ static void test_name_from_uri(void)
 
     ndn_shared_block_t* sn;
     bool err = false;
-    begin = xtimer_now();
+    begin = xtimer_now_usec();
     for (int i = 0; i < repeat; ++i) {
 	sn = ndn_name_from_uri(uri, strlen(uri));
 	if (sn == NULL) {
@@ -67,7 +67,7 @@ static void test_name_from_uri(void)
 	}
 	ndn_shared_block_release(sn);
     }
-    end = xtimer_now();
+    end = xtimer_now_usec();
 
     if (!err)
 	printf("name_from_uri finished in %"PRIu32" us"
@@ -94,7 +94,7 @@ static void test_name_get_size(void)
 
     int r;
     bool err = false;
-    begin = xtimer_now();
+    begin = xtimer_now_usec();
     for (int i = 0; i < repeat; ++i) {
 	r = ndn_name_get_size_from_block(&sn->block);
 	if (r != 10) {
@@ -102,7 +102,7 @@ static void test_name_get_size(void)
 	    break;
 	}
     }
-    end = xtimer_now();
+    end = xtimer_now_usec();
 
     ndn_shared_block_release(sn);
 
@@ -132,7 +132,7 @@ static void test_name_get_component(void)
     int r;
     ndn_name_component_t comp;
     bool err = false;
-    begin = xtimer_now();
+    begin = xtimer_now_usec();
     for (int i = 0; i < repeat; ++i) {
 	r = ndn_name_get_component_from_block(&sn->block, 4, &comp);
 	if (r != 0 && comp.buf[0] != 'e' && comp.len != 10) {
@@ -140,7 +140,7 @@ static void test_name_get_component(void)
 	    break;
 	}
     }
-    end = xtimer_now();
+    end = xtimer_now_usec();
 
     ndn_shared_block_release(sn);
 
@@ -169,7 +169,7 @@ static void test_name_append(void)
 
     bool err = false;
     ndn_shared_block_t *sin;
-    begin = xtimer_now();
+    begin = xtimer_now_usec();
     for (int i = 0; i < repeat; ++i) {
 	sin = ndn_name_append(&sn->block, buf, sizeof(buf));
 	if (sin == NULL) {
@@ -178,7 +178,7 @@ static void test_name_append(void)
 	}
 	ndn_shared_block_release(sin);
     }
-    end = xtimer_now();
+    end = xtimer_now_usec();
 
     if (!err)
 	printf("name_append finished in %"PRIu32" us"
@@ -207,7 +207,7 @@ static void test_data_create_digest(void)
 
     bool err = false;
     ndn_shared_block_t *sd;
-    begin = xtimer_now();
+    begin = xtimer_now_usec();
     for (int i = 0; i < repeat; ++i) {
 	ndn_metainfo_t meta = { NDN_CONTENT_TYPE_BLOB, -1 };
 
@@ -224,7 +224,7 @@ static void test_data_create_digest(void)
 
 	ndn_shared_block_release(sd);
     }
-    end = xtimer_now();
+    end = xtimer_now_usec();
 
     ndn_shared_block_release(sn);
 
@@ -253,7 +253,7 @@ static void test_data_create_hmac(void)
 
     bool err = false;
     ndn_shared_block_t *sd;
-    begin = xtimer_now();
+    begin = xtimer_now_usec();
     for (int i = 0; i < repeat; ++i) {
 	ndn_metainfo_t meta = { NDN_CONTENT_TYPE_BLOB, -1 };
 
@@ -270,7 +270,7 @@ static void test_data_create_hmac(void)
 
 	ndn_shared_block_release(sd);
     }
-    end = xtimer_now();
+    end = xtimer_now_usec();
 
     ndn_shared_block_release(sn);
 
@@ -299,7 +299,7 @@ static void test_data_create_ecdsa(void)
 
     bool err = false;
     ndn_shared_block_t *sd;
-    begin = xtimer_now();
+    begin = xtimer_now_usec();
     for (int i = 0; i < repeat; ++i) {
 	ndn_metainfo_t meta = { NDN_CONTENT_TYPE_BLOB, -1 };
 
@@ -316,7 +316,7 @@ static void test_data_create_ecdsa(void)
 
 	ndn_shared_block_release(sd);
     }
-    end = xtimer_now();
+    end = xtimer_now_usec();
 
     ndn_shared_block_release(sn);
 
@@ -358,7 +358,7 @@ static void test_data_verify_ecdsa(void)
     ndn_shared_block_release(sn);
 
     int r;
-    begin = xtimer_now();
+    begin = xtimer_now_usec();
     for (int i = 0; i < repeat; ++i) {
 	r = ndn_data_verify_signature(&sd->block, ecc_key_pub,
 				      sizeof(ecc_key_pub));
@@ -366,7 +366,7 @@ static void test_data_verify_ecdsa(void)
 	    break;
 	}
     }
-    end = xtimer_now();
+    end = xtimer_now_usec();
 
     if (r == 0)
 	printf("data_verify ECDSA finished in %"PRIu32" us"
@@ -409,14 +409,14 @@ static void test_data_get_name(void)
 
     int r;
     ndn_block_t name;
-    begin = xtimer_now();
+    begin = xtimer_now_usec();
     for (int i = 0; i < repeat; ++i) {
 	r = ndn_data_get_name(&sd->block, &name);
 	if (r != 0) {
 	    break;
 	}
     }
-    end = xtimer_now();
+    end = xtimer_now_usec();
 
     if (r == 0)
 	printf("data_get_name finished in %"PRIu32" us"
@@ -458,14 +458,14 @@ static void test_data_get_content(void)
     }
 
     int r;
-    begin = xtimer_now();
+    begin = xtimer_now_usec();
     for (int i = 0; i < repeat; ++i) {
 	r = ndn_data_get_content(&sd->block, &content);
 	if (r != 0) {
 	    break;
 	}
     }
-    end = xtimer_now();
+    end = xtimer_now_usec();
 
     if (r == 0)
 	printf("data_get_content finished in %"PRIu32" us"
@@ -491,7 +491,7 @@ static void test_interest_create(void)
 
     bool err = false;
     ndn_shared_block_t *sb;
-    uint32_t begin = xtimer_now();
+    uint32_t begin = xtimer_now_usec();
     for (int i = 0; i < repeat; ++i) {
 	uint32_t lifetime = 0x4000;
 	sb = ndn_interest_create(&sn->block, NULL, lifetime);
@@ -501,7 +501,7 @@ static void test_interest_create(void)
 	}
 	ndn_shared_block_release(sb);
     }
-    uint32_t end = xtimer_now();
+    uint32_t end = xtimer_now_usec();
 
     ndn_shared_block_release(sn);
 
@@ -533,7 +533,7 @@ static void test_interest_get_name(void)
 	return;
     }
 
-    uint32_t begin = xtimer_now();
+    uint32_t begin = xtimer_now_usec();
     ndn_block_t name;
     int r;
     for (int i = 0; i < repeat; ++i) {
@@ -542,7 +542,7 @@ static void test_interest_get_name(void)
 	    break;
 	}
     }
-    uint32_t end = xtimer_now();
+    uint32_t end = xtimer_now_usec();
 
     if (r == 0)
 	printf("interest_get_name finished in %"PRIu32" us"
@@ -559,7 +559,7 @@ static void test_malloc(int sz)
     int repeat = 100000;
     printf("malloc %d start (repeat=%d)\n", sz, repeat);
 
-    uint32_t begin = xtimer_now();
+    uint32_t begin = xtimer_now_usec();
     void* p;
     bool err = false;
     for (int i = 0; i < repeat; ++i) {
@@ -570,7 +570,7 @@ static void test_malloc(int sz)
 	}
 	free(p);
     }
-    uint32_t end = xtimer_now();
+    uint32_t end = xtimer_now_usec();
 
     if (!err)
 	printf("malloc %d finished in %"PRIu32" us"
@@ -591,11 +591,11 @@ static void test_memset(int sz)
 	return;
     }
 
-    uint32_t begin = xtimer_now();
+    uint32_t begin = xtimer_now_usec();
     for (int i = 0; i < repeat; ++i) {
 	memset(src, i, sz);
     }
-    uint32_t end = xtimer_now();
+    uint32_t end = xtimer_now_usec();
 
     free(src);
 
@@ -622,11 +622,11 @@ static void test_memcpy(int sz)
 	return;
     }
 
-    uint32_t begin = xtimer_now();
+    uint32_t begin = xtimer_now_usec();
     for (int i = 0; i < repeat; ++i) {
 	memcpy(dst, src, sz);
     }
-    uint32_t end = xtimer_now();
+    uint32_t end = xtimer_now_usec();
 
     free(src);
     free(dst);

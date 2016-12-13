@@ -61,7 +61,7 @@ static int on_data(ndn_block_t* interest, ndn_block_t* data)
 {
     (void)interest;
 
-    uint32_t end = xtimer_now();
+    uint32_t end = xtimer_now_usec();
 
     ndn_block_t name;
     int r = ndn_data_get_name(data, &name);
@@ -133,7 +133,7 @@ static int send_interest(void)
     ndn_name_print(&sin->block);
     putchar('\n');
 
-    begin = xtimer_now();
+    begin = xtimer_now_usec();
     int r = ndn_app_express_interest(handle, &sin->block, NULL, lifetime,
                                      on_data, on_timeout);
     ndn_shared_block_release(sin);

@@ -25,6 +25,7 @@
 #include "random.h"
 
 #include "ndn-riot/app.h"
+#include "ndn-riot/forwarding-strategy.h"
 #include "ndn-riot/ndn.h"
 #include "ndn-riot/encoding/name.h"
 #include "ndn-riot/encoding/interest.h"
@@ -104,7 +105,7 @@ static uint16_t max_count;
 
 static int send_interest(void* context)
 {
-    const char* uri = (const char*)context;
+    ndn_block_t* name = (ndn_block_t*)context;
 
     printf("client (pid=%" PRIkernel_pid "): in sched callback, count=%d\n",
 	   handle->id, ++count);
@@ -116,19 +117,13 @@ static int send_interest(void* context)
 	return NDN_APP_STOP;
     }
 
-    ndn_shared_block_t* sn = ndn_name_from_uri(uri, strlen(uri));
-    if (sn == NULL) {
-	printf("client (pid=%" PRIkernel_pid "): cannot create name from uri "
-	       "\"%s\"\n", handle->id, uri);
-	return NDN_APP_ERROR;
-    }
-
     uint32_t rand = random_uint32();
-    ndn_shared_block_t* sin = ndn_name_append_uint32(&sn->block, rand);
-    ndn_shared_block_release(sn);
+    ndn_shared_block_t* sin = ndn_name_append_uint32(name, rand);
     if (sin == NULL) {
 	printf("client (pid=%" PRIkernel_pid "): cannot append component to "
-	       "name \"%s\"\n", handle->id, uri);
+	       "name ", handle->id);
+	ndn_name_print(name);
+	putchar('\n');
 	return NDN_APP_ERROR;
     }
 
@@ -147,7 +142,7 @@ static int send_interest(void* context)
 	return NDN_APP_ERROR;
     }
     ndn_shared_block_release(sin);
-    
+
     if (ndn_app_schedule(handle, send_interest, context, 2000000) != 0) {
 	printf("client (pid=%" PRIkernel_pid "): cannot schedule next interest"
 	       "\n", handle->id);
@@ -170,13 +165,30 @@ static void run_client(const char* uri, int max_cnt)
 	return;
     }
 
+    ndn_shared_block_t* sn = ndn_name_from_uri(uri, strlen(uri));
+    if (sn == NULL) {
+	printf("client (pid=%" PRIkernel_pid "): cannot create name from uri "
+	       "\"%s\"\n", handle->id, uri);
+	return;
+    }
+
+    if (ndn_app_add_strategy(ndn_shared_block_copy(sn),
+			     &multicast_strategy) != 0) {
+	printf("client (pid=%" PRIkernel_pid "): cannot add multicast strategy"
+	       " for uri \"%s\"\n", handle->id, uri);
+	ndn_shared_block_release(sn);
+	return;
+    }
+
     max_count = max_cnt;
     count = 0;
 
-    if (ndn_app_schedule(handle, send_interest, (void*)uri, 1000000) != 0) {
+    if (ndn_app_schedule(handle, send_interest, (void*)(&sn->block),
+			 1000000) != 0) {
 	printf("client (pid=%" PRIkernel_pid "): cannot schedule first "
 	       "interest\n", handle->id);
 	ndn_app_destroy(handle);
+	ndn_shared_block_release(sn);
 	return;
     }
     printf("client (pid=%" PRIkernel_pid "): schedule first interest in 1 sec"
@@ -191,6 +203,8 @@ static void run_client(const char* uri, int max_cnt)
 	   handle->id);
 
     ndn_app_destroy(handle);
+    ndn_shared_block_release(sn);
+    return;
 }
 
 static uint8_t sid = 0;
@@ -212,7 +226,9 @@ static int on_interest(ndn_block_t* interest)
     ndn_shared_block_t* sdn = ndn_name_append_uint8(&in, sid);
     if (sdn == NULL) {
 	printf("server (pid=%" PRIkernel_pid "): cannot append component to "
-	       "name\n", handle->id);
+	       "name ", handle->id);
+	ndn_name_print(&in);
+	putchar('\n');
 	return NDN_APP_ERROR;
     }
 

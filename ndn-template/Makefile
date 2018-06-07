@@ -18,8 +18,7 @@ USEMODULE += gnrc_netdev_default
 USEMODULE += auto_init_gnrc_netif
 USEMODULE += random
 
-USEMODULE += ndn-riot
-INCLUDES += -I$(CURDIR)/../../
+USEPKG += ndn-riot
 
 # Comment this out to disable code in RIOT that does safety checking
 # which is not needed in a production environment but helps in the
